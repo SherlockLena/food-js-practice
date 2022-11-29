@@ -104,4 +104,53 @@ window.addEventListener("DOMContentLoaded", () => {
 
   setClock('.timer', deadline);
 
+  //Modal window
+
+  const modalTrigger = document.querySelectorAll('[data-modal]'),
+        modalWindow = document.querySelector('.modal'),
+        modalCloseBtn = document.querySelector('[data-close]');
+
+  function openModal() {
+    modalWindow.classList.toggle('show');
+    document.body.style.overflow = 'hidden';
+    clearInterval(modalTimerID);
+  }
+
+  function closeModal() {
+    modalWindow.classList.toggle('show');
+    document.body.style.overflow = '';
+  }
+
+  function showModalByScroll() {
+      if(window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight - 1) {
+        openModal();
+        window.removeEventListener('scroll', showModalByScroll);
+      }
+  }
+
+  modalTrigger.forEach(btn => {
+    btn.addEventListener('click', () => {
+      openModal();
+    });
+  });
+  
+
+  modalCloseBtn.addEventListener('click', closeModal);
+
+  modalWindow.addEventListener('click', (e) => {
+    if(e.target === modalWindow) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.code === "Escape" && modalWindow.classList.contains('show')) {
+      closeModal();
+    }
+  });
+
+  const modalTimerID = setTimeout(openModal, 3000);
+
+  window.addEventListener('scroll', showModalByScroll);
+
 });
