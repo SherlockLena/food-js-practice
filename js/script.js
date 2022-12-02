@@ -107,17 +107,18 @@ window.addEventListener("DOMContentLoaded", () => {
   //Modal window
 
   const modalTrigger = document.querySelectorAll('[data-modal]'),
-        modalWindow = document.querySelector('.modal'),
-        modalCloseBtn = document.querySelector('[data-close]');
+        modalWindow = document.querySelector('.modal');
 
   function openModal() {
-    modalWindow.classList.toggle('show');
+    modalWindow.classList.add('show');
+    modalWindow.classList.remove('hide');
     document.body.style.overflow = 'hidden';
     clearInterval(modalTimerID);
   }
 
   function closeModal() {
-    modalWindow.classList.toggle('show');
+    modalWindow.classList.remove('show');
+    modalWindow.classList.add('hide');
     document.body.style.overflow = '';
   }
 
@@ -133,12 +134,9 @@ window.addEventListener("DOMContentLoaded", () => {
       openModal();
     });
   });
-  
-
-  modalCloseBtn.addEventListener('click', closeModal);
 
   modalWindow.addEventListener('click', (e) => {
-    if(e.target === modalWindow) {
+    if(e.target === modalWindow || e.target.getAttribute('data-close') == "") {
       closeModal();
     }
   });
@@ -224,10 +222,11 @@ window.addEventListener("DOMContentLoaded", () => {
   ).render();
 
     //Forms
+
     const forms = document.querySelectorAll('form');
 
     const message = {
-      loading: "Загрузка",
+      loading: "img/form/spinner.svg",
       success: "Спасибо! Скоро мы с Вами свяжемся",
       failure: "Что-то пошло не так"
     };
@@ -240,10 +239,13 @@ window.addEventListener("DOMContentLoaded", () => {
       form.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        const statusMessage = document.createElement('div');
-        statusMessage.classList.add('status');
-        statusMessage.textContent = message.loading;
-        form.append(statusMessage);
+        let statusMessage = document.createElement('img');
+        statusMessage.src = message.loading;
+        statusMessage.style.cssText = `
+          display: block;
+          margin: 0 auto;
+        `;
+        form.insertAdjacentElement('afterend', statusMessage);
 
         const req = new XMLHttpRequest();
         req.open('POST', 'server.php');
@@ -263,16 +265,36 @@ window.addEventListener("DOMContentLoaded", () => {
         req.addEventListener('load', () => {
           if(req.status === 200) {
             console.log(req.response);
-            statusMessage.textContent = message.success;
+            showMessage(message.success);
+            statusMessage.remove();
             form.reset();
-            setTimeout(() => {
-              statusMessage.remove();
-            }, 2000);
           } else {
-            statusMessage.textContent = message.failure;
+            showMessage(message.failure);
           }
         });
       });
     }
 
+    function showMessage(message) {
+      const prevModalDialog = document.querySelector('.modal__dialog');
+
+      prevModalDialog.classList.add('hide');
+      openModal();
+
+      const thanksModal = document.createElement('div');
+      thanksModal.classList.add('modal__dialog');
+      thanksModal.innerHTML = `
+      <div class = "modal__content">
+        <div class = "modal__close" data-close>&times;</div>
+        <div class = "modal__title">${message}</div>
+      </div>`;
+
+      document.querySelector('.modal').append(thanksModal);
+      setTimeout(() => {
+        thanksModal.remove();
+        prevModalDialog.classList.add('show');
+        prevModalDialog.classList.remove('hide');
+        closeModal();
+      }, 4000);
+    }
 });
