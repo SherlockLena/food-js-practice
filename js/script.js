@@ -202,12 +202,18 @@ window.addEventListener("DOMContentLoaded", () => {
     return await res.json();
   };
 
-  getResource('http://localhost:3000/menu')
+  // getResource('http://localhost:3000/menu')
+  // .then(data => {
+  //   data.forEach(({img, altimg, title, descr, price}) => {
+  //     new MenuItem(img, altimg, title, descr, price, '.menu .container').render();
+  //   });
+  // });
+  axios.get('http://localhost:3000/menu')
   .then(data => {
-    data.forEach(({img, altimg, title, descr, price}) => {
-      new MenuItem(img, altimg, title, descr, price, '.menu .container').render();
+      data.data.forEach(({img, altimg, title, descr, price}) => {
+        new MenuItem(img, altimg, title, descr, price, '.menu .container').render();
+      });
     });
-  });
 
     //Forms
 
@@ -289,7 +295,39 @@ window.addEventListener("DOMContentLoaded", () => {
       }, 4000);
     }
 
-    fetch('http://localhost:3000/menu')
-    .then(data => data.json())
-    .then(res => console.log(res));
+    //SLIDER
+
+    const prevBtn = document.querySelector('.offer__slider-prev'),
+          nextBtn = document.querySelector('.offer__slider-next'),
+          slides = document.querySelectorAll('.offer__slide'),
+          total = document.querySelector('#total'),
+          current = document.querySelector('#current');
+
+    let currentSlide = 1;
+
+    total.textContent = (slides.length > 10 ? slides.length : `0${slides.length}`);
+
+    showSLides(currentSlide);
+
+    function showSLides(n) {
+      if (n > slides.length) {
+        currentSlide = 1;
+      } else if (n < 1) {
+        currentSlide = slides.length;
+      } else {
+        currentSlide = n;
+      }
+
+      slides.forEach(item => item.style.display = 'none');
+      slides[currentSlide - 1].style.display = 'block';
+      current.textContent = (currentSlide > 10 ? currentSlide : `0${currentSlide}`);
+    }
+
+    prevBtn.addEventListener('click', () => {
+      showSLides(currentSlide - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      showSLides(currentSlide + 1);
+    });
 });
