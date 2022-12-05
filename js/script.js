@@ -300,6 +300,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const prevBtn = document.querySelector('.offer__slider-prev'),
           nextBtn = document.querySelector('.offer__slider-next'),
           slides = document.querySelectorAll('.offer__slide'),
+          slider = document.querySelector('.offer__slider'),
           total = document.querySelector('#total'),
           current = document.querySelector('#current'),
           slidesWrapper = document.querySelector('.offer__slider-wrapper'),
@@ -322,6 +323,31 @@ window.addEventListener("DOMContentLoaded", () => {
       slide.style.width = width;
     });
 
+    slider.style.position = 'relative';
+
+    const dots = document.createElement('ol'),
+          dotsArr = [];
+    
+    dots.classList.add('carousel-indicators');
+    slider.append(dots);
+
+    for (let i = 0; i < slides.length; i++) {
+      const dot = document.createElement('li');
+      dot.setAttribute('data-slide-to', i + 1);
+      dot.classList.add('dot');
+      if (i == 0) {
+        dot.style.opacity = 1;
+      }
+      dots.append(dot);
+      dotsArr.push(dot);
+    }
+
+    function setCurrent () {
+      current.textContent = (currentSlide > 10 ? currentSlide : `0${currentSlide}`);
+      dotsArr.forEach(dot => dot.style.opacity = '.5');
+      dotsArr[currentSlide - 1].style.opacity = 1;
+    }
+
     nextBtn.addEventListener('click', () => {
       if (offset == +width.slice(0, width.length - 2) * (slides.length - 1)) {
         offset = 0;
@@ -334,7 +360,7 @@ window.addEventListener("DOMContentLoaded", () => {
           } else {
             currentSlide++;
       }
-      current.textContent = (currentSlide > 10 ? currentSlide : `0${currentSlide}`);
+      setCurrent();
     });
 
     prevBtn.addEventListener('click', () => {
@@ -349,32 +375,20 @@ window.addEventListener("DOMContentLoaded", () => {
       } else {
         currentSlide--;
       }
-      current.textContent = (currentSlide > 10 ? currentSlide : `0${currentSlide}`);
+      setCurrent();
     });
-    
 
-    // showSLides(currentSlide);
+    dotsArr.forEach(dot => {
+      dot.addEventListener('click', (e) => {
+        const slideTo = e.target.getAttribute('data-slide-to');
 
-    // function showSLides(n) {
-    //   if (n > slides.length) {
-    //     currentSlide = 1;
-    //   } else if (n < 1) {
-    //     currentSlide = slides.length;
-    //   } else {
-    //     currentSlide = n;
-    //   }
+        currentSlide = slideTo;
+        offset = +width.slice(0, width.length - 2) * (slideTo - 1);
 
-    //   slides.forEach(item => item.style.display = 'none');
-    //   slides[currentSlide - 1].style.display = 'block';
-    //   
-    // }
+        slidesField.style.transform = `translateX(-${offset}px)`; 
 
-    // prevBtn.addEventListener('click', () => {
-    //   showSLides(currentSlide - 1);
-    // });
-
-    // nextBtn.addEventListener('click', () => {
-    //   showSLides(currentSlide + 1);
-    // });
+        setCurrent();
+      });
+    });
 
 });
