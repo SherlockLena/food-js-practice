@@ -43,7 +43,7 @@ function cards() {
         }
     }
     
-    getResource();
+    getResource('http://localhost:3000/menu');
 
     axios.get('http://localhost:3000/menu')
     .then(data => {
